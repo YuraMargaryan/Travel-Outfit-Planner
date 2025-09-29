@@ -2427,6 +2427,241 @@ class OutfitPhotosCompanion extends UpdateCompanion<OutfitPhoto> {
   }
 }
 
+class $OutfitClothingItemsTable extends OutfitClothingItems
+    with TableInfo<$OutfitClothingItemsTable, OutfitClothingItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OutfitClothingItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _outfitPhotoIdMeta =
+      const VerificationMeta('outfitPhotoId');
+  @override
+  late final GeneratedColumn<int> outfitPhotoId = GeneratedColumn<int>(
+      'outfit_photo_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES outfit_photos (id)'));
+  static const VerificationMeta _clothingItemIdMeta =
+      const VerificationMeta('clothingItemId');
+  @override
+  late final GeneratedColumn<int> clothingItemId = GeneratedColumn<int>(
+      'clothing_item_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES clothing_items (id)'));
+  @override
+  List<GeneratedColumn> get $columns => [id, outfitPhotoId, clothingItemId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'outfit_clothing_items';
+  @override
+  VerificationContext validateIntegrity(Insertable<OutfitClothingItem> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('outfit_photo_id')) {
+      context.handle(
+          _outfitPhotoIdMeta,
+          outfitPhotoId.isAcceptableOrUnknown(
+              data['outfit_photo_id']!, _outfitPhotoIdMeta));
+    } else if (isInserting) {
+      context.missing(_outfitPhotoIdMeta);
+    }
+    if (data.containsKey('clothing_item_id')) {
+      context.handle(
+          _clothingItemIdMeta,
+          clothingItemId.isAcceptableOrUnknown(
+              data['clothing_item_id']!, _clothingItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_clothingItemIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OutfitClothingItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OutfitClothingItem(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      outfitPhotoId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}outfit_photo_id'])!,
+      clothingItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}clothing_item_id'])!,
+    );
+  }
+
+  @override
+  $OutfitClothingItemsTable createAlias(String alias) {
+    return $OutfitClothingItemsTable(attachedDatabase, alias);
+  }
+}
+
+class OutfitClothingItem extends DataClass
+    implements Insertable<OutfitClothingItem> {
+  final int id;
+  final int outfitPhotoId;
+  final int clothingItemId;
+  const OutfitClothingItem(
+      {required this.id,
+      required this.outfitPhotoId,
+      required this.clothingItemId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['outfit_photo_id'] = Variable<int>(outfitPhotoId);
+    map['clothing_item_id'] = Variable<int>(clothingItemId);
+    return map;
+  }
+
+  OutfitClothingItemsCompanion toCompanion(bool nullToAbsent) {
+    return OutfitClothingItemsCompanion(
+      id: Value(id),
+      outfitPhotoId: Value(outfitPhotoId),
+      clothingItemId: Value(clothingItemId),
+    );
+  }
+
+  factory OutfitClothingItem.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OutfitClothingItem(
+      id: serializer.fromJson<int>(json['id']),
+      outfitPhotoId: serializer.fromJson<int>(json['outfitPhotoId']),
+      clothingItemId: serializer.fromJson<int>(json['clothingItemId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'outfitPhotoId': serializer.toJson<int>(outfitPhotoId),
+      'clothingItemId': serializer.toJson<int>(clothingItemId),
+    };
+  }
+
+  OutfitClothingItem copyWith(
+          {int? id, int? outfitPhotoId, int? clothingItemId}) =>
+      OutfitClothingItem(
+        id: id ?? this.id,
+        outfitPhotoId: outfitPhotoId ?? this.outfitPhotoId,
+        clothingItemId: clothingItemId ?? this.clothingItemId,
+      );
+  OutfitClothingItem copyWithCompanion(OutfitClothingItemsCompanion data) {
+    return OutfitClothingItem(
+      id: data.id.present ? data.id.value : this.id,
+      outfitPhotoId: data.outfitPhotoId.present
+          ? data.outfitPhotoId.value
+          : this.outfitPhotoId,
+      clothingItemId: data.clothingItemId.present
+          ? data.clothingItemId.value
+          : this.clothingItemId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OutfitClothingItem(')
+          ..write('id: $id, ')
+          ..write('outfitPhotoId: $outfitPhotoId, ')
+          ..write('clothingItemId: $clothingItemId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, outfitPhotoId, clothingItemId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OutfitClothingItem &&
+          other.id == this.id &&
+          other.outfitPhotoId == this.outfitPhotoId &&
+          other.clothingItemId == this.clothingItemId);
+}
+
+class OutfitClothingItemsCompanion extends UpdateCompanion<OutfitClothingItem> {
+  final Value<int> id;
+  final Value<int> outfitPhotoId;
+  final Value<int> clothingItemId;
+  const OutfitClothingItemsCompanion({
+    this.id = const Value.absent(),
+    this.outfitPhotoId = const Value.absent(),
+    this.clothingItemId = const Value.absent(),
+  });
+  OutfitClothingItemsCompanion.insert({
+    this.id = const Value.absent(),
+    required int outfitPhotoId,
+    required int clothingItemId,
+  })  : outfitPhotoId = Value(outfitPhotoId),
+        clothingItemId = Value(clothingItemId);
+  static Insertable<OutfitClothingItem> custom({
+    Expression<int>? id,
+    Expression<int>? outfitPhotoId,
+    Expression<int>? clothingItemId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (outfitPhotoId != null) 'outfit_photo_id': outfitPhotoId,
+      if (clothingItemId != null) 'clothing_item_id': clothingItemId,
+    });
+  }
+
+  OutfitClothingItemsCompanion copyWith(
+      {Value<int>? id, Value<int>? outfitPhotoId, Value<int>? clothingItemId}) {
+    return OutfitClothingItemsCompanion(
+      id: id ?? this.id,
+      outfitPhotoId: outfitPhotoId ?? this.outfitPhotoId,
+      clothingItemId: clothingItemId ?? this.clothingItemId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (outfitPhotoId.present) {
+      map['outfit_photo_id'] = Variable<int>(outfitPhotoId.value);
+    }
+    if (clothingItemId.present) {
+      map['clothing_item_id'] = Variable<int>(clothingItemId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OutfitClothingItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('outfitPhotoId: $outfitPhotoId, ')
+          ..write('clothingItemId: $clothingItemId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $WeatherPlansTable extends WeatherPlans
     with TableInfo<$WeatherPlansTable, WeatherPlan> {
   @override
@@ -2821,6 +3056,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TemplateClothingItemsTable templateClothingItems =
       $TemplateClothingItemsTable(this);
   late final $OutfitPhotosTable outfitPhotos = $OutfitPhotosTable(this);
+  late final $OutfitClothingItemsTable outfitClothingItems =
+      $OutfitClothingItemsTable(this);
   late final $WeatherPlansTable weatherPlans = $WeatherPlansTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -2834,6 +3071,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         tripTemplates,
         templateClothingItems,
         outfitPhotos,
+        outfitClothingItems,
         weatherPlans
       ];
 }
@@ -3172,6 +3410,24 @@ final class $$ClothingItemsTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$OutfitClothingItemsTable,
+      List<OutfitClothingItem>> _outfitClothingItemsRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.outfitClothingItems,
+          aliasName: $_aliasNameGenerator(
+              db.clothingItems.id, db.outfitClothingItems.clothingItemId));
+
+  $$OutfitClothingItemsTableProcessedTableManager get outfitClothingItemsRefs {
+    final manager = $$OutfitClothingItemsTableTableManager(
+            $_db, $_db.outfitClothingItems)
+        .filter((f) => f.clothingItemId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_outfitClothingItemsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$ClothingItemsTableFilterComposer
@@ -3248,6 +3504,27 @@ class $$ClothingItemsTableFilterComposer
                   $removeJoinBuilderFromRootComposer:
                       $removeJoinBuilderFromRootComposer,
                 ));
+    return f(composer);
+  }
+
+  Expression<bool> outfitClothingItemsRefs(
+      Expression<bool> Function($$OutfitClothingItemsTableFilterComposer f) f) {
+    final $$OutfitClothingItemsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.outfitClothingItems,
+        getReferencedColumn: (t) => t.clothingItemId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$OutfitClothingItemsTableFilterComposer(
+              $db: $db,
+              $table: $db.outfitClothingItems,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
@@ -3362,6 +3639,29 @@ class $$ClothingItemsTableAnnotationComposer
                 ));
     return f(composer);
   }
+
+  Expression<T> outfitClothingItemsRefs<T extends Object>(
+      Expression<T> Function($$OutfitClothingItemsTableAnnotationComposer a)
+          f) {
+    final $$OutfitClothingItemsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.outfitClothingItems,
+            getReferencedColumn: (t) => t.clothingItemId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$OutfitClothingItemsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.outfitClothingItems,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$ClothingItemsTableTableManager extends RootTableManager<
@@ -3376,7 +3676,9 @@ class $$ClothingItemsTableTableManager extends RootTableManager<
     (ClothingItem, $$ClothingItemsTableReferences),
     ClothingItem,
     PrefetchHooks Function(
-        {bool dayClothingItemsRefs, bool templateClothingItemsRefs})> {
+        {bool dayClothingItemsRefs,
+        bool templateClothingItemsRefs,
+        bool outfitClothingItemsRefs})> {
   $$ClothingItemsTableTableManager(_$AppDatabase db, $ClothingItemsTable table)
       : super(TableManagerState(
           db: db,
@@ -3435,12 +3737,14 @@ class $$ClothingItemsTableTableManager extends RootTableManager<
               .toList(),
           prefetchHooksCallback: (
               {dayClothingItemsRefs = false,
-              templateClothingItemsRefs = false}) {
+              templateClothingItemsRefs = false,
+              outfitClothingItemsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (dayClothingItemsRefs) db.dayClothingItems,
-                if (templateClothingItemsRefs) db.templateClothingItems
+                if (templateClothingItemsRefs) db.templateClothingItems,
+                if (outfitClothingItemsRefs) db.outfitClothingItems
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -3470,6 +3774,19 @@ class $$ClothingItemsTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.clothingItemId == item.id),
+                        typedResults: items),
+                  if (outfitClothingItemsRefs)
+                    await $_getPrefetchedData<ClothingItem, $ClothingItemsTable,
+                            OutfitClothingItem>(
+                        currentTable: table,
+                        referencedTable: $$ClothingItemsTableReferences
+                            ._outfitClothingItemsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ClothingItemsTableReferences(db, table, p0)
+                                .outfitClothingItemsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.clothingItemId == item.id),
                         typedResults: items)
                 ];
               },
@@ -3490,7 +3807,9 @@ typedef $$ClothingItemsTableProcessedTableManager = ProcessedTableManager<
     (ClothingItem, $$ClothingItemsTableReferences),
     ClothingItem,
     PrefetchHooks Function(
-        {bool dayClothingItemsRefs, bool templateClothingItemsRefs})>;
+        {bool dayClothingItemsRefs,
+        bool templateClothingItemsRefs,
+        bool outfitClothingItemsRefs})>;
 typedef $$TripDaysTableCreateCompanionBuilder = TripDaysCompanion Function({
   Value<int> id,
   required int tripId,
@@ -4841,6 +5160,29 @@ typedef $$OutfitPhotosTableUpdateCompanionBuilder = OutfitPhotosCompanion
   Value<DateTime> createdAt,
 });
 
+final class $$OutfitPhotosTableReferences
+    extends BaseReferences<_$AppDatabase, $OutfitPhotosTable, OutfitPhoto> {
+  $$OutfitPhotosTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$OutfitClothingItemsTable,
+      List<OutfitClothingItem>> _outfitClothingItemsRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.outfitClothingItems,
+          aliasName: $_aliasNameGenerator(
+              db.outfitPhotos.id, db.outfitClothingItems.outfitPhotoId));
+
+  $$OutfitClothingItemsTableProcessedTableManager get outfitClothingItemsRefs {
+    final manager = $$OutfitClothingItemsTableTableManager(
+            $_db, $_db.outfitClothingItems)
+        .filter((f) => f.outfitPhotoId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_outfitClothingItemsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
 class $$OutfitPhotosTableFilterComposer
     extends Composer<_$AppDatabase, $OutfitPhotosTable> {
   $$OutfitPhotosTableFilterComposer({
@@ -4867,6 +5209,27 @@ class $$OutfitPhotosTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> outfitClothingItemsRefs(
+      Expression<bool> Function($$OutfitClothingItemsTableFilterComposer f) f) {
+    final $$OutfitClothingItemsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.outfitClothingItems,
+        getReferencedColumn: (t) => t.outfitPhotoId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$OutfitClothingItemsTableFilterComposer(
+              $db: $db,
+              $table: $db.outfitClothingItems,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$OutfitPhotosTableOrderingComposer
@@ -4923,6 +5286,29 @@ class $$OutfitPhotosTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> outfitClothingItemsRefs<T extends Object>(
+      Expression<T> Function($$OutfitClothingItemsTableAnnotationComposer a)
+          f) {
+    final $$OutfitClothingItemsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.outfitClothingItems,
+            getReferencedColumn: (t) => t.outfitPhotoId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$OutfitClothingItemsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.outfitClothingItems,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$OutfitPhotosTableTableManager extends RootTableManager<
@@ -4934,12 +5320,9 @@ class $$OutfitPhotosTableTableManager extends RootTableManager<
     $$OutfitPhotosTableAnnotationComposer,
     $$OutfitPhotosTableCreateCompanionBuilder,
     $$OutfitPhotosTableUpdateCompanionBuilder,
-    (
-      OutfitPhoto,
-      BaseReferences<_$AppDatabase, $OutfitPhotosTable, OutfitPhoto>
-    ),
+    (OutfitPhoto, $$OutfitPhotosTableReferences),
     OutfitPhoto,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool outfitClothingItemsRefs})> {
   $$OutfitPhotosTableTableManager(_$AppDatabase db, $OutfitPhotosTable table)
       : super(TableManagerState(
           db: db,
@@ -4983,9 +5366,37 @@ class $$OutfitPhotosTableTableManager extends RootTableManager<
             createdAt: createdAt,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$OutfitPhotosTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({outfitClothingItemsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (outfitClothingItemsRefs) db.outfitClothingItems
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (outfitClothingItemsRefs)
+                    await $_getPrefetchedData<OutfitPhoto, $OutfitPhotosTable,
+                            OutfitClothingItem>(
+                        currentTable: table,
+                        referencedTable: $$OutfitPhotosTableReferences
+                            ._outfitClothingItemsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$OutfitPhotosTableReferences(db, table, p0)
+                                .outfitClothingItemsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.outfitPhotoId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
@@ -4998,12 +5409,331 @@ typedef $$OutfitPhotosTableProcessedTableManager = ProcessedTableManager<
     $$OutfitPhotosTableAnnotationComposer,
     $$OutfitPhotosTableCreateCompanionBuilder,
     $$OutfitPhotosTableUpdateCompanionBuilder,
-    (
-      OutfitPhoto,
-      BaseReferences<_$AppDatabase, $OutfitPhotosTable, OutfitPhoto>
-    ),
+    (OutfitPhoto, $$OutfitPhotosTableReferences),
     OutfitPhoto,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool outfitClothingItemsRefs})>;
+typedef $$OutfitClothingItemsTableCreateCompanionBuilder
+    = OutfitClothingItemsCompanion Function({
+  Value<int> id,
+  required int outfitPhotoId,
+  required int clothingItemId,
+});
+typedef $$OutfitClothingItemsTableUpdateCompanionBuilder
+    = OutfitClothingItemsCompanion Function({
+  Value<int> id,
+  Value<int> outfitPhotoId,
+  Value<int> clothingItemId,
+});
+
+final class $$OutfitClothingItemsTableReferences extends BaseReferences<
+    _$AppDatabase, $OutfitClothingItemsTable, OutfitClothingItem> {
+  $$OutfitClothingItemsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $OutfitPhotosTable _outfitPhotoIdTable(_$AppDatabase db) =>
+      db.outfitPhotos.createAlias($_aliasNameGenerator(
+          db.outfitClothingItems.outfitPhotoId, db.outfitPhotos.id));
+
+  $$OutfitPhotosTableProcessedTableManager get outfitPhotoId {
+    final $_column = $_itemColumn<int>('outfit_photo_id')!;
+
+    final manager = $$OutfitPhotosTableTableManager($_db, $_db.outfitPhotos)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_outfitPhotoIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $ClothingItemsTable _clothingItemIdTable(_$AppDatabase db) =>
+      db.clothingItems.createAlias($_aliasNameGenerator(
+          db.outfitClothingItems.clothingItemId, db.clothingItems.id));
+
+  $$ClothingItemsTableProcessedTableManager get clothingItemId {
+    final $_column = $_itemColumn<int>('clothing_item_id')!;
+
+    final manager = $$ClothingItemsTableTableManager($_db, $_db.clothingItems)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_clothingItemIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$OutfitClothingItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $OutfitClothingItemsTable> {
+  $$OutfitClothingItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  $$OutfitPhotosTableFilterComposer get outfitPhotoId {
+    final $$OutfitPhotosTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.outfitPhotoId,
+        referencedTable: $db.outfitPhotos,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$OutfitPhotosTableFilterComposer(
+              $db: $db,
+              $table: $db.outfitPhotos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$ClothingItemsTableFilterComposer get clothingItemId {
+    final $$ClothingItemsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.clothingItemId,
+        referencedTable: $db.clothingItems,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ClothingItemsTableFilterComposer(
+              $db: $db,
+              $table: $db.clothingItems,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$OutfitClothingItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $OutfitClothingItemsTable> {
+  $$OutfitClothingItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  $$OutfitPhotosTableOrderingComposer get outfitPhotoId {
+    final $$OutfitPhotosTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.outfitPhotoId,
+        referencedTable: $db.outfitPhotos,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$OutfitPhotosTableOrderingComposer(
+              $db: $db,
+              $table: $db.outfitPhotos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$ClothingItemsTableOrderingComposer get clothingItemId {
+    final $$ClothingItemsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.clothingItemId,
+        referencedTable: $db.clothingItems,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ClothingItemsTableOrderingComposer(
+              $db: $db,
+              $table: $db.clothingItems,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$OutfitClothingItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OutfitClothingItemsTable> {
+  $$OutfitClothingItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  $$OutfitPhotosTableAnnotationComposer get outfitPhotoId {
+    final $$OutfitPhotosTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.outfitPhotoId,
+        referencedTable: $db.outfitPhotos,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$OutfitPhotosTableAnnotationComposer(
+              $db: $db,
+              $table: $db.outfitPhotos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$ClothingItemsTableAnnotationComposer get clothingItemId {
+    final $$ClothingItemsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.clothingItemId,
+        referencedTable: $db.clothingItems,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ClothingItemsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.clothingItems,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$OutfitClothingItemsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $OutfitClothingItemsTable,
+    OutfitClothingItem,
+    $$OutfitClothingItemsTableFilterComposer,
+    $$OutfitClothingItemsTableOrderingComposer,
+    $$OutfitClothingItemsTableAnnotationComposer,
+    $$OutfitClothingItemsTableCreateCompanionBuilder,
+    $$OutfitClothingItemsTableUpdateCompanionBuilder,
+    (OutfitClothingItem, $$OutfitClothingItemsTableReferences),
+    OutfitClothingItem,
+    PrefetchHooks Function({bool outfitPhotoId, bool clothingItemId})> {
+  $$OutfitClothingItemsTableTableManager(
+      _$AppDatabase db, $OutfitClothingItemsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OutfitClothingItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OutfitClothingItemsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OutfitClothingItemsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> outfitPhotoId = const Value.absent(),
+            Value<int> clothingItemId = const Value.absent(),
+          }) =>
+              OutfitClothingItemsCompanion(
+            id: id,
+            outfitPhotoId: outfitPhotoId,
+            clothingItemId: clothingItemId,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int outfitPhotoId,
+            required int clothingItemId,
+          }) =>
+              OutfitClothingItemsCompanion.insert(
+            id: id,
+            outfitPhotoId: outfitPhotoId,
+            clothingItemId: clothingItemId,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$OutfitClothingItemsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {outfitPhotoId = false, clothingItemId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (outfitPhotoId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.outfitPhotoId,
+                    referencedTable: $$OutfitClothingItemsTableReferences
+                        ._outfitPhotoIdTable(db),
+                    referencedColumn: $$OutfitClothingItemsTableReferences
+                        ._outfitPhotoIdTable(db)
+                        .id,
+                  ) as T;
+                }
+                if (clothingItemId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.clothingItemId,
+                    referencedTable: $$OutfitClothingItemsTableReferences
+                        ._clothingItemIdTable(db),
+                    referencedColumn: $$OutfitClothingItemsTableReferences
+                        ._clothingItemIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$OutfitClothingItemsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $OutfitClothingItemsTable,
+    OutfitClothingItem,
+    $$OutfitClothingItemsTableFilterComposer,
+    $$OutfitClothingItemsTableOrderingComposer,
+    $$OutfitClothingItemsTableAnnotationComposer,
+    $$OutfitClothingItemsTableCreateCompanionBuilder,
+    $$OutfitClothingItemsTableUpdateCompanionBuilder,
+    (OutfitClothingItem, $$OutfitClothingItemsTableReferences),
+    OutfitClothingItem,
+    PrefetchHooks Function({bool outfitPhotoId, bool clothingItemId})>;
 typedef $$WeatherPlansTableCreateCompanionBuilder = WeatherPlansCompanion
     Function({
   Value<int> id,
@@ -5219,6 +5949,8 @@ class $AppDatabaseManager {
       $$TemplateClothingItemsTableTableManager(_db, _db.templateClothingItems);
   $$OutfitPhotosTableTableManager get outfitPhotos =>
       $$OutfitPhotosTableTableManager(_db, _db.outfitPhotos);
+  $$OutfitClothingItemsTableTableManager get outfitClothingItems =>
+      $$OutfitClothingItemsTableTableManager(_db, _db.outfitClothingItems);
   $$WeatherPlansTableTableManager get weatherPlans =>
       $$WeatherPlansTableTableManager(_db, _db.weatherPlans);
 }

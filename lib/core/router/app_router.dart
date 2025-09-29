@@ -12,6 +12,7 @@ import 'package:travel_outfit_planne/features/templates/presentation/pages/creat
 import 'package:travel_outfit_planne/features/templates/presentation/pages/create_template_screen.dart';
 import 'package:travel_outfit_planne/features/outfit_photos/presentation/pages/outfit_photos_screen.dart';
 import 'package:travel_outfit_planne/features/outfit_photos/presentation/pages/add_edit_outfit_photo_screen.dart';
+import 'package:travel_outfit_planne/features/outfit_photos/presentation/pages/clothing_selection_screen.dart';
 import 'package:travel_outfit_planne/features/weather/presentation/pages/weather_plans_screen.dart';
 import 'package:travel_outfit_planne/features/weather/presentation/pages/add_edit_weather_plan_screen.dart';
 import 'package:travel_outfit_planne/core/database/app_database.dart';
@@ -55,6 +56,9 @@ class AppRouter extends _$AppRouter {
     ),
     AutoRoute(
       page: AddEditOutfitPhotoRoute.page,
+    ),
+    AutoRoute(
+      page: ClothingSelectionRoute.page,
     ),
     AutoRoute(
       page: WeatherPlansRoute.page,

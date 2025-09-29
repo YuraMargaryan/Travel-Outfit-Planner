@@ -64,6 +64,17 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const ClothingListsScreen(),
       );
     },
+    ClothingSelectionRoute.name: (routeData) {
+      final args = routeData.argsAs<ClothingSelectionRouteArgs>(
+          orElse: () => const ClothingSelectionRouteArgs());
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: ClothingSelectionScreen(
+          key: args.key,
+          selectedClothingIds: args.selectedClothingIds,
+        ),
+      );
+    },
     CreateTemplateRoute.name: (routeData) {
       final args = routeData.argsAs<CreateTemplateRouteArgs>(
           orElse: () => const CreateTemplateRouteArgs());
@@ -306,6 +317,44 @@ class ClothingListsRoute extends PageRouteInfo<void> {
   static const String name = 'ClothingListsRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ClothingSelectionScreen]
+class ClothingSelectionRoute extends PageRouteInfo<ClothingSelectionRouteArgs> {
+  ClothingSelectionRoute({
+    Key? key,
+    List<int> selectedClothingIds = const [],
+    List<PageRouteInfo>? children,
+  }) : super(
+          ClothingSelectionRoute.name,
+          args: ClothingSelectionRouteArgs(
+            key: key,
+            selectedClothingIds: selectedClothingIds,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'ClothingSelectionRoute';
+
+  static const PageInfo<ClothingSelectionRouteArgs> page =
+      PageInfo<ClothingSelectionRouteArgs>(name);
+}
+
+class ClothingSelectionRouteArgs {
+  const ClothingSelectionRouteArgs({
+    this.key,
+    this.selectedClothingIds = const [],
+  });
+
+  final Key? key;
+
+  final List<int> selectedClothingIds;
+
+  @override
+  String toString() {
+    return 'ClothingSelectionRouteArgs{key: $key, selectedClothingIds: $selectedClothingIds}';
+  }
 }
 
 /// generated route for

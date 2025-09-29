@@ -558,6 +558,70 @@ class _OutfitPhotosScreenState extends State<OutfitPhotosScreen> with TickerProv
                         ),
                       ],
                     ),
+                    // Clothing items
+                    FutureBuilder<List<ClothingItem>>(
+                      future: _getClothingItemsForPhoto(photo.id),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 20),
+                              const Text(
+                                'Clothing Items:',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: CupertinoColors.label,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: snapshot.data!.map((item) {
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _getCategoryColor(item.category).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: _getCategoryColor(item.category).withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          _getCategoryIcon(item.category),
+                                          size: 14,
+                                          color: _getCategoryColor(item.category),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          item.name,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: _getCategoryColor(item.category),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                    
                     if (photo.tags != null && photo.tags!.isNotEmpty) ...[
                       const SizedBox(height: 20),
                       Wrap(
@@ -687,6 +751,41 @@ class _OutfitPhotosScreenState extends State<OutfitPhotosScreen> with TickerProv
         ],
       ),
     );
+  }
+
+  Future<List<ClothingItem>> _getClothingItemsForPhoto(int photoId) async {
+    final databaseProvider = Provider.of<DatabaseProvider>(context, listen: false);
+    return await databaseProvider.database.getClothingItemsForOutfit(photoId);
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'top':
+        return CupertinoColors.systemBlue;
+      case 'bottom':
+        return CupertinoColors.systemGreen;
+      case 'shoes':
+        return CupertinoColors.systemOrange;
+      case 'accessories':
+        return CupertinoColors.systemPurple;
+      default:
+        return CupertinoColors.systemGrey;
+    }
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'top':
+        return CupertinoIcons.square_stack_3d_up;
+      case 'bottom':
+        return CupertinoIcons.rectangle_stack;
+      case 'shoes':
+        return CupertinoIcons.circle;
+      case 'accessories':
+        return CupertinoIcons.bag;
+      default:
+        return CupertinoIcons.question_circle;
+    }
   }
 }
 

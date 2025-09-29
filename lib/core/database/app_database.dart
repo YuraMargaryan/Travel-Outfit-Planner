@@ -87,6 +87,13 @@ class OutfitPhotos extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+// Таблица для связи фото комплектов с вещами
+class OutfitClothingItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get outfitPhotoId => integer().references(OutfitPhotos, #id)();
+  IntColumn get clothingItemId => integer().references(ClothingItems, #id)();
+}
+
 // Таблица для планов погоды
 class WeatherPlans extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -106,13 +113,14 @@ class WeatherPlans extends Table {
   TripTemplates,
   TemplateClothingItems,
   OutfitPhotos,
+  OutfitClothingItems,
   WeatherPlans,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -130,6 +138,9 @@ class AppDatabase extends _$AppDatabase {
       if (from < 4) {
         // Update existing templates to English
         await _updateTemplatesToEnglish();
+      }
+      if (from < 5) {
+        await m.createTable(outfitClothingItems);
       }
     },
   );
@@ -339,6 +350,37 @@ class AppDatabase extends _$AppDatabase {
   Future<int> deleteWeatherPlan(int id) {
     return (delete(weatherPlans)..where((p) => p.id.equals(id))).go();
   }
+
+  // Методы для работы с вещами в фото комплектов
+  Future<List<ClothingItem>> getClothingItemsForOutfit(int outfitPhotoId) async {
+    final outfitClothing = await (select(outfitClothingItems)
+      ..where((o) => o.outfitPhotoId.equals(outfitPhotoId))
+    ).get();
+    
+    final clothingIds = outfitClothing.map((oc) => oc.clothingItemId).toList();
+    
+    if (clothingIds.isEmpty) return [];
+    
+    return (select(clothingItems)..where((c) => c.id.isIn(clothingIds))).get();
+  }
+  
+  Future<int> addClothingToOutfit(int outfitPhotoId, int clothingItemId) =>
+    into(outfitClothingItems).insert(
+      OutfitClothingItemsCompanion.insert(
+        outfitPhotoId: outfitPhotoId,
+        clothingItemId: clothingItemId,
+      ),
+    );
+  
+  Future<bool> removeClothingFromOutfit(int outfitPhotoId, int clothingItemId) async {
+    final result = await (delete(outfitClothingItems)
+      ..where((o) => o.outfitPhotoId.equals(outfitPhotoId) & o.clothingItemId.equals(clothingItemId))
+    ).go();
+    return result > 0;
+  }
+  
+  Future<int> removeAllClothingFromOutfit(int outfitPhotoId) =>
+    (delete(outfitClothingItems)..where((o) => o.outfitPhotoId.equals(outfitPhotoId))).go();
 }
 
 LazyDatabase _openConnection() {

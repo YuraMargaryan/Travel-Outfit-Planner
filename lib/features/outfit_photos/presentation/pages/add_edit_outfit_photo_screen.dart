@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:drift/drift.dart' as drift;
 import '../../../../core/providers/database_provider.dart';
 import '../../../../core/database/app_database.dart';
+import 'clothing_selection_screen.dart';
 
 @RoutePage()
 class AddEditOutfitPhotoScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _AddEditOutfitPhotoScreenState extends State<AddEditOutfitPhotoScreen> {
   
   Uint8List? _imageData;
   bool _isLoading = false;
+  List<int> _selectedClothingIds = [];
 
   @override
   void initState() {
@@ -42,6 +44,17 @@ class _AddEditOutfitPhotoScreenState extends State<AddEditOutfitPhotoScreen> {
       _descriptionController.text = widget.outfitPhoto!.description ?? '';
       _tagsController.text = widget.outfitPhoto!.tags ?? '';
       _imageData = widget.outfitPhoto!.imageData;
+      _loadSelectedClothing();
+    }
+  }
+
+  Future<void> _loadSelectedClothing() async {
+    if (widget.outfitPhoto != null) {
+      final databaseProvider = Provider.of<DatabaseProvider>(context, listen: false);
+      final clothingItems = await databaseProvider.database.getClothingItemsForOutfit(widget.outfitPhoto!.id);
+      setState(() {
+        _selectedClothingIds = clothingItems.map((item) => item.id).toList();
+      });
     }
   }
 
@@ -141,6 +154,12 @@ class _AddEditOutfitPhotoScreenState extends State<AddEditOutfitPhotoScreen> {
                 controller: _tagsController,
                 placeholder: 'Enter tags separated by commas',
               ),
+              const SizedBox(height: 24),
+              
+              // Selected Clothing
+              _buildFieldTitle('Selected Clothing'),
+              const SizedBox(height: 8),
+              _buildClothingSelectionField(),
               const SizedBox(height: 40),
               
               // Save button
@@ -273,6 +292,119 @@ class _AddEditOutfitPhotoScreenState extends State<AddEditOutfitPhotoScreen> {
     );
   }
 
+  Widget _buildClothingSelectionField() {
+    return GestureDetector(
+      onTap: _selectClothing,
+      child: Container(
+        decoration: BoxDecoration(
+          color: CupertinoColors.systemBackground,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: CupertinoColors.systemGrey.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          border: Border.all(
+            color: CupertinoColors.systemGrey5,
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: CupertinoColors.activeBlue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          CupertinoIcons.bag,
+                          color: CupertinoColors.activeBlue,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        '${_selectedClothingIds.length} items selected',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: CupertinoColors.label,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Icon(
+                    CupertinoIcons.chevron_right,
+                    color: CupertinoColors.systemGrey,
+                    size: 20,
+                  ),
+                ],
+              ),
+              if (_selectedClothingIds.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                FutureBuilder<List<ClothingItem>>(
+                  future: _getSelectedClothingItems(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: snapshot.data!.map((item) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: _getCategoryColor(item.category).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _getCategoryColor(item.category).withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _getCategoryIcon(item.category),
+                                  size: 14,
+                                  color: _getCategoryColor(item.category),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  item.name,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: _getCategoryColor(item.category),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSaveButton() {
     return Container(
       width: double.infinity,
@@ -395,6 +527,60 @@ class _AddEditOutfitPhotoScreenState extends State<AddEditOutfitPhotoScreen> {
     }
   }
 
+  Future<void> _selectClothing() async {
+    final result = await Navigator.of(context).push<List<int>>(
+      CupertinoPageRoute(
+        builder: (context) => ClothingSelectionScreen(
+          selectedClothingIds: _selectedClothingIds,
+        ),
+      ),
+    );
+    
+    if (result != null) {
+      setState(() {
+        _selectedClothingIds = result;
+      });
+    }
+  }
+
+  Future<List<ClothingItem>> _getSelectedClothingItems() async {
+    if (_selectedClothingIds.isEmpty) return [];
+    
+    final databaseProvider = Provider.of<DatabaseProvider>(context, listen: false);
+    final allItems = await databaseProvider.database.getAllClothingItems();
+    return allItems.where((item) => _selectedClothingIds.contains(item.id)).toList();
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'top':
+        return CupertinoColors.systemBlue;
+      case 'bottom':
+        return CupertinoColors.systemGreen;
+      case 'shoes':
+        return CupertinoColors.systemOrange;
+      case 'accessories':
+        return CupertinoColors.systemPurple;
+      default:
+        return CupertinoColors.systemGrey;
+    }
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'top':
+        return CupertinoIcons.square_stack_3d_up;
+      case 'bottom':
+        return CupertinoIcons.rectangle_stack;
+      case 'shoes':
+        return CupertinoIcons.circle;
+      case 'accessories':
+        return CupertinoIcons.bag;
+      default:
+        return CupertinoIcons.question_circle;
+    }
+  }
+
   Future<void> _savePhoto() async {
     if (!_formKey.currentState!.validate()) return;
     
@@ -423,9 +609,15 @@ class _AddEditOutfitPhotoScreenState extends State<AddEditOutfitPhotoScreen> {
               : _tagsController.text.trim(),
           _imageData!,
         );
+        
+        // Update clothing associations
+        await databaseProvider.database.removeAllClothingFromOutfit(widget.outfitPhoto!.id);
+        for (final clothingId in _selectedClothingIds) {
+          await databaseProvider.database.addClothingToOutfit(widget.outfitPhoto!.id, clothingId);
+        }
       } else {
         // Create new photo
-        await databaseProvider.database.insertOutfitPhoto(
+        final photoId = await databaseProvider.database.insertOutfitPhoto(
           OutfitPhotosCompanion.insert(
             name: _nameController.text.trim(),
             description: _descriptionController.text.trim().isEmpty 
@@ -438,6 +630,11 @@ class _AddEditOutfitPhotoScreenState extends State<AddEditOutfitPhotoScreen> {
             createdAt: drift.Value(DateTime.now()),
           ),
         );
+        
+        // Add clothing associations
+        for (final clothingId in _selectedClothingIds) {
+          await databaseProvider.database.addClothingToOutfit(photoId, clothingId);
+        }
       }
       
       if (mounted) {
